@@ -3,10 +3,7 @@
    This file written 2015 by F Lundevall
    Updated 2017-04-21 by F Lundevall
 
-   This file should be changed by YOU! So you must
-   add comment(s) here with your name(s) and date(s):
-
-   This file modified 2017-04-31 by Ture Teknolog 
+   This file modified 2024-02-13 by Sam Serbouti
 
    For copyright and licensing, see file COPYING */
 
@@ -29,7 +26,7 @@ void labinit( void )
 {
 
   /*assignement 2.b*/
-  T2CON = 0x70; //stop timer and clear control register, set prescale to 256:1
+  T2CON = 0x70; //stop timer and clear control register, set prescale to 256:1 70 = 0111 0000
   TMR2 = 0x0; // clear timer register
   PR2 = 80000000/(256*10);/*period register = Fclk/Ftimer = Fclk/(prescale*Ftimer) = 80 MHz/(prescale*timer)*/
   T2CONSET = 0x8000; //start timer
@@ -48,41 +45,39 @@ void labwork( void )
   //1.d : increase bin value shown on 8 green LEDs
   volatile int * portE = (volatile int *) 0xbf886110;
 
-  //delay( 1000 );
-  if(IFS(0) & 0x100){
-    timeouts+=1;
-    IFSCLR(0) = 0;//reset the interrupt status flag
-
-    if(timeouts==10){ //assignement 2.c
-      time2string( textstring, mytime );
-      display_string( 3, textstring );
-      display_update();
-      tick( &mytime );
-      *portE = *portE +1;
-      timeouts =0;
-    }
-
-    display_image(96, icon);
-  }
-  
   //assignement 1.h
   int button_pressed = getbtns();
-  if(button_pressed & 0b0010) //pressing BTN2
+  if(button_pressed & 1) //pressing BTN2
   {
     mytime = mytime & 0xFF0F;
     mytime = mytime | (getsw()<<4);    
   }
-  if(button_pressed & 0b0100) //pressing BTN3
+  if(button_pressed & 2) //pressing BTN3
   {
     mytime = mytime & 0xF0FF;
     mytime = mytime | (getsw()<<8);
   }
-  if(button_pressed & 0b1000) //pressing BTN4
+  if(button_pressed & 4) //pressing BTN4
   {
     mytime = mytime & 0x0FFF;
     mytime = mytime | (getsw()<<12);
   }
 
+  //delay( 1000 );
+  if(IFS(0) & 0x100){
+    timeouts+=1;
+    IFSCLR(0) = 0x100;//reset the interrupt status flag
+  }
 
+  //assignement 2.c
+  if(timeouts==10){ //is executed every 10th interrupts
+    time2string( textstring, mytime );
+    display_string( 3, textstring );
+    display_update();
+    tick( &mytime );
+    *portE = *portE +1;
+    display_image(96, icon);
+    timeouts =0; //set counter to zero
+  }
 
 }

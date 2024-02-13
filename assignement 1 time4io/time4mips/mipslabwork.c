@@ -26,7 +26,6 @@ void user_isr( void )
 
 void labinit( void )
 {
-
   volatile int * trisE = (volatile int *) 0xbf886100;
   *trisE = 0xF & *trisE; //1.c : bits 7 through 0 of port E are set as output
 
@@ -45,23 +44,22 @@ void labwork( void )
   int button_pressed = getbtns();
   int switches_on = getsw();
 
-  if(button_pressed & 0b001) //pressing BTN2
+  if(button_pressed & 1) //pressing BTN2
   {
     mytime = mytime & 0xFF0F;
     mytime = mytime | (switches_on<<4);
   }
-  if(button_pressed & 0b010) //pressing BTN3
+  if(button_pressed & 2) //pressing BTN3
   {
     mytime = mytime & 0xF0FF;
     mytime = mytime | (switches_on<<8);
   }
-  if(button_pressed & 0b100) //pressing BTN4
+  if(button_pressed & 4) //pressing BTN4
   {
     mytime = mytime & 0x0FFF;
     mytime = mytime | (switches_on<<12);
   }
 
-  
   delay( 1000 );
   time2string( textstring, mytime );
   display_string( 3, textstring );
@@ -69,6 +67,4 @@ void labwork( void )
   tick( &mytime );
   *portE +=1;
   display_image(96, icon);
-
-
 }
