@@ -32,20 +32,20 @@ void user_isr( void ) {
     display_update();
     tick( &mytime );
     timeouts=0;
-    }
+  }
+
+  display_image(96, icon);
 
 }
 void labinit( void )
 {
+  volatile int * trisE = (volatile int *) 0xbf886100;
+  *trisE = 0xFFFFFF00 & *trisE; //1.c : bits 7 through 0 of port E are set as output
 
   /*assignement 2.b*/
   T2CON = 0x70; //stop timer and clear control register, set prescale to 256:1
   TMR2 = 0x0; // clear timer register
   PR2 = 80000000/(256*10);/*period register = Fclk/Ftimer = Fclk/(prescale*Ftimer) = 80 MHz/(prescale*timer)*/
-
-
-  volatile int * trisE = (volatile int *) 0xbf886100;
-  *trisE = 0xFFFFFF00 & *trisE; //1.c : bits 7 through 0 of port E are set as output
 
   TRISDSET = 0xFE0; //1.e set bits 11 through 5 of port D as inputs
 
